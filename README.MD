@@ -1,4 +1,22 @@
-# <b>DragoonCapes</b>  
+# DragoonCapes
+
+> **AWL Gaming maintained compatibility fork**
+>
+> DragoonCapes was created by **HappyDragoon / Happydragun4now**. AWL Gaming maintains this fork for current Valheim releases and does not claim authorship of the original mod, cape designs, artwork, or gameplay concepts.
+>
+> Maintained source: https://github.com/AWL-Gaming/DragoonCapes
+> Original source: https://github.com/Happydragun4now/DragoonCapes
+>
+> If this compatibility maintenance is useful to you and you want to support continued fixes, testing, and maintenance by AWL Gaming, support is optional at https://patreon.awlgaming.net. The mod remains available regardless of support.
+
+## AWL compatibility release 1.3.6
+
+- Updated for current Valheim 1.0 releases.
+- Updated the Jotunn dependency to 2.30.0.
+- Updated the `SEMan.AddStatusEffect` Harmony target for the current Valheim method signature.
+- Updated Wraith Cape movement for the current Rigidbody API.
+- Preserves the original cape content, effects, recipes, assets, and configuration behavior.
+
 <img src="https://github.com/Happydragun4now/DragoonCapes/blob/main/17Capes.jpg?raw=true"/>
 
 >## Installation (manual)
@@ -60,7 +78,10 @@
 </details>
 
 >## Bug Reporting
-You can report issues with the mod at the github page:
+For this maintained compatibility fork, report issues at:
+https://github.com/AWL-Gaming/DragoonCapes/issues
+
+Original project issues:
 https://github.com/Happydragun4now/DragoonCapes/issues
 
 <details>

@@ -1,9 +1,10 @@
-﻿{
-  "name": "JotunnModStub",
-  "description": "",
-  "version_number": "0.0.1",
-  "website_url": "",
+{
+  "name": "DragoonCapes",
+  "description": "AWL-maintained Valheim 1.0 compatibility fork of HappyDragoon's cape overhaul with unique RPG-style cape effects.",
+  "version_number": "1.3.6",
+  "website_url": "https://github.com/AWL-Gaming/DragoonCapes",
   "dependencies": [
-    "ValheimModding-Jotunn-2.7.9",
+    "denikson-BepInExPack_Valheim-5.4.2350",
+    "ValheimModding-Jotunn-2.30.0"
   ]
 }
