@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.7
+
+- Fixed item names and descriptions not loading when installed under a different package folder name.
+- Fixed custom cape icons and textures not loading when installed under a different package folder name.
+
 ## 1.3.6
 
 - Restored compatibility with current Valheim 1.0 releases.

@@ -28,7 +28,7 @@ namespace DragoonCapes
     {
         public const string PluginGUID = "com.HappyDragoon.DragoonCapes";
         public const string PluginName = "DragoonCapes";
-        public const string PluginVersion = "1.3.6";
+        public const string PluginVersion = "1.3.7";
 
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
 
@@ -38,10 +38,52 @@ namespace DragoonCapes
         {
             Instance = this;
         }
+        private string GetAssetPath(string fileName)
+        {
+            string modPath = Path.GetDirectoryName(Info.Location);
+            string nestedPath = Path.Combine(modPath, "Assets", fileName);
+            if (File.Exists(nestedPath))
+            {
+                return nestedPath;
+            }
+
+            string flatPath = Path.Combine(modPath, fileName);
+            if (File.Exists(flatPath))
+            {
+                return flatPath;
+            }
+
+            Logger.LogWarning("Missing DragoonCapes asset: " + fileName);
+            return nestedPath;
+        }
+
+        private void LoadTranslations()
+        {
+            string modPath = Path.GetDirectoryName(Info.Location);
+            string translationsPath = Path.Combine(modPath, "Translations");
+            string[] languages = { "English", "French", "Korean", "Chinese" };
+
+            foreach (string language in languages)
+            {
+                string nestedPath = Path.Combine(translationsPath, language, language + ".json");
+                string flatPath = Path.Combine(modPath, language + ".json");
+                string path = File.Exists(nestedPath) ? nestedPath : flatPath;
+
+                if (File.Exists(path))
+                {
+                    Localization.AddJsonFile(language, File.ReadAllText(path));
+                }
+                else
+                {
+                    Logger.LogWarning("Missing DragoonCapes translation: " + language);
+                }
+            }
+        }
 
         private void Awake()
         {
             CreateConfigValues();
+            LoadTranslations();
             //Clones the vanilla prefabs when they are available
             PrefabManager.OnVanillaPrefabsAvailable += AddClonedItems;
 
@@ -493,8 +535,8 @@ namespace DragoonCapes
             //Sprite and Texture loading
             string modPath = Path.GetDirectoryName(Info.Location);
             //Logger.LogError(Path.Combine(modPath, "Assets\\neckIcon.jpg"));
-            Sprite NeckIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/neckIcon.png");
-            Texture2D NeckTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/neckTexture.png");
+            Sprite NeckIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("neckIcon.png"));
+            Texture2D NeckTex = AssetUtils.LoadTexture(GetAssetPath("neckTexture.png"));
             neckCapeConf.Icons = new Sprite[] { NeckIcon };
             neckCapeConf.StyleTex = NeckTex;
 
@@ -535,8 +577,8 @@ namespace DragoonCapes
             cultistCapeConf.AddRequirement(new RequirementConfig("Iron", 1, 1));
 
             //Sprite and Texture loading
-            Sprite CultistIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/cultistIcon.png");
-            Texture2D CultistTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/cultistTexture.png");
+            Sprite CultistIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("cultistIcon.png"));
+            Texture2D CultistTex = AssetUtils.LoadTexture(GetAssetPath("cultistTexture.png"));
             cultistCapeConf.Icons = new Sprite[] { CultistIcon };
             cultistCapeConf.StyleTex = CultistTex;
 
@@ -571,8 +613,8 @@ namespace DragoonCapes
             dvergrCapeConf.AddRequirement(new RequirementConfig("BlackMetal", 1, 1));
 
             //Sprite and Texture loading
-            Sprite dvergrIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/dvergrIcon.png");
-            Texture2D dvergrTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/dvergrTexture.png");
+            Sprite dvergrIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("dvergrIcon.png"));
+            Texture2D dvergrTex = AssetUtils.LoadTexture(GetAssetPath("dvergrTexture.png"));
             dvergrCapeConf.Icons = new Sprite[] { dvergrIcon };
             dvergrCapeConf.StyleTex = dvergrTex;
 
@@ -612,8 +654,8 @@ namespace DragoonCapes
             shamanCapeConf.AddRequirement(new RequirementConfig("BlackMetal", 1, 1));
 
             //Sprite and Texture loading
-            Sprite shamanIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/shamanIcon.png");
-            Texture2D shamanTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/shamanTexture.png");
+            Sprite shamanIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("shamanIcon.png"));
+            Texture2D shamanTex = AssetUtils.LoadTexture(GetAssetPath("shamanTexture.png"));
             shamanCapeConf.Icons = new Sprite[] { shamanIcon };
             shamanCapeConf.StyleTex = shamanTex;
 
@@ -645,8 +687,8 @@ namespace DragoonCapes
             serpentCapeConf.AddRequirement(new RequirementConfig("Chitin", 3, 2));
 
             //Sprite and Texture loading
-            Sprite serpentIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/serpentIcon.png");
-            Texture2D serpentTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/serpentTexture.png");
+            Sprite serpentIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("serpentIcon.png"));
+            Texture2D serpentTex = AssetUtils.LoadTexture(GetAssetPath("serpentTexture.png"));
             serpentCapeConf.Icons = new Sprite[] { serpentIcon };
             serpentCapeConf.StyleTex = serpentTex;
 
@@ -692,13 +734,13 @@ namespace DragoonCapes
             knightCapeConf.AddRequirement(new RequirementConfig("Cloudberry", 1, 1));
 
             //Sprite and Texture loading, variants are used
-            Sprite knightIcon1 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/knightIcon1.png");
-            Sprite knightIcon2 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/knightIcon2.png");
-            Sprite knightIcon3 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/knightIcon3.png");
-            Sprite knightIcon4 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/knightIcon4.png");
-            Sprite knightIcon5 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/knightIcon5.png");
-            Sprite knightIcon6 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/knightIcon6.png");
-            Texture2D knightTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/knightTexture.png");
+            Sprite knightIcon1 = AssetUtils.LoadSpriteFromFile(GetAssetPath("knightIcon1.png"));
+            Sprite knightIcon2 = AssetUtils.LoadSpriteFromFile(GetAssetPath("knightIcon2.png"));
+            Sprite knightIcon3 = AssetUtils.LoadSpriteFromFile(GetAssetPath("knightIcon3.png"));
+            Sprite knightIcon4 = AssetUtils.LoadSpriteFromFile(GetAssetPath("knightIcon4.png"));
+            Sprite knightIcon5 = AssetUtils.LoadSpriteFromFile(GetAssetPath("knightIcon5.png"));
+            Sprite knightIcon6 = AssetUtils.LoadSpriteFromFile(GetAssetPath("knightIcon6.png"));
+            Texture2D knightTex = AssetUtils.LoadTexture(GetAssetPath("knightTexture.png"));
             knightCapeConf.Icons = new Sprite[] { knightIcon1, knightIcon2, knightIcon3, knightIcon4, knightIcon5, knightIcon6 };
             knightCapeConf.StyleTex = knightTex;
 
@@ -735,10 +777,10 @@ namespace DragoonCapes
             crusaderCapeConf.AddRequirement(new RequirementConfig("Silver", 10, 5));
 
             //Sprite and Texture loading, variants are used
-            Sprite crusaderIcon1 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/crusaderIcon1.png");
-            Sprite crusaderIcon2 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/crusaderIcon2.png");
-            Sprite crusaderIcon3 = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/crusaderIcon3.png");
-            Texture2D crusaderTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/crusaderTexture.png");
+            Sprite crusaderIcon1 = AssetUtils.LoadSpriteFromFile(GetAssetPath("crusaderIcon1.png"));
+            Sprite crusaderIcon2 = AssetUtils.LoadSpriteFromFile(GetAssetPath("crusaderIcon2.png"));
+            Sprite crusaderIcon3 = AssetUtils.LoadSpriteFromFile(GetAssetPath("crusaderIcon3.png"));
+            Texture2D crusaderTex = AssetUtils.LoadTexture(GetAssetPath("crusaderTexture.png"));
             crusaderCapeConf.Icons = new Sprite[] { crusaderIcon1, crusaderIcon2, crusaderIcon3 };
             crusaderCapeConf.StyleTex = crusaderTex;
 
@@ -771,8 +813,8 @@ namespace DragoonCapes
             berserkCapeConf.AddRequirement(new RequirementConfig("Obsidian", 10, 3));
 
             //Sprite and Texture loading
-            Sprite berserkIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/berserkIcon.png");
-            Texture2D berserkTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/berserkTexture.png");
+            Sprite berserkIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("berserkIcon.png"));
+            Texture2D berserkTex = AssetUtils.LoadTexture(GetAssetPath("berserkTexture.png"));
             berserkCapeConf.Icons = new Sprite[] { berserkIcon };
             berserkCapeConf.StyleTex = berserkTex;
 
@@ -820,8 +862,8 @@ namespace DragoonCapes
             bushCapeConf.AddRequirement(new RequirementConfig("Flint", 3, 1));
 
             //Sprite and Texture loading
-            Sprite bushIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/bushIcon.png");
-            Texture2D bushTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/bushTexture.png");
+            Sprite bushIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("bushIcon.png"));
+            Texture2D bushTex = AssetUtils.LoadTexture(GetAssetPath("bushTexture.png"));
             bushCapeConf.Icons = new Sprite[] { bushIcon };
             bushCapeConf.StyleTex = bushTex;
 
@@ -862,8 +904,8 @@ namespace DragoonCapes
             boarCapeConf.AddRequirement(new RequirementConfig("Flint", 1, 1));
 
             //Sprite and Texture loading
-            Sprite boarIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/boarIcon.png");
-            Texture2D boarTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/boarTexture.png");
+            Sprite boarIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("boarIcon.png"));
+            Texture2D boarTex = AssetUtils.LoadTexture(GetAssetPath("boarTexture.png"));
             boarCapeConf.Icons = new Sprite[] { boarIcon };
             boarCapeConf.StyleTex = boarTex;
 
@@ -897,8 +939,8 @@ namespace DragoonCapes
             dwarfCapeConf.AddRequirement(new RequirementConfig("AncientSeed", 2, 1));
 
             //Sprite and Texture loading
-            Sprite dwarfIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/dwarfIcon.png");
-            Texture2D dwarfTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/dwarfTexture.png");
+            Sprite dwarfIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("dwarfIcon.png"));
+            Texture2D dwarfTex = AssetUtils.LoadTexture(GetAssetPath("dwarfTexture.png"));
             dwarfCapeConf.Icons = new Sprite[] { dwarfIcon };
             dwarfCapeConf.StyleTex = dwarfTex;
 
@@ -934,8 +976,8 @@ namespace DragoonCapes
             wraithCapeConf.AddRequirement(new RequirementConfig("Chain", 4, 2));
 
             //Sprite and Texture loading
-            Sprite wraithIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/wraithIcon.png");
-            Texture2D wraithTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/wraithTexture.png");
+            Sprite wraithIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("wraithIcon.png"));
+            Texture2D wraithTex = AssetUtils.LoadTexture(GetAssetPath("wraithTexture.png"));
             wraithCapeConf.Icons = new Sprite[] { wraithIcon };
             wraithCapeConf.StyleTex = wraithTex;
 
@@ -978,8 +1020,8 @@ namespace DragoonCapes
             einherjarCapeConf.AddRequirement(new RequirementConfig("LeatherScraps", 10, 2));
 
             //Sprite and Texture loading
-            Sprite einherjarIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/einherjarIcon.png");
-            Texture2D einherjarTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/einherjarTexture.png");
+            Sprite einherjarIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("einherjarIcon.png"));
+            Texture2D einherjarTex = AssetUtils.LoadTexture(GetAssetPath("einherjarTexture.png"));
             einherjarCapeConf.Icons = new Sprite[] { einherjarIcon };
             einherjarCapeConf.StyleTex = einherjarTex;
 
@@ -1012,8 +1054,8 @@ namespace DragoonCapes
             //surtlingCapeConf.AddRequirement(new RequirementConfig("Flametal", 6, 1));
 
             //Sprite and Texture loading
-            Sprite surtlingIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/surtlingIcon.png");
-            Texture2D surtlingTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/surtlingTexture.png");
+            Sprite surtlingIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("surtlingIcon.png"));
+            Texture2D surtlingTex = AssetUtils.LoadTexture(GetAssetPath("surtlingTexture.png"));
             surtlingCapeConf.Icons = new Sprite[] { surtlingIcon };
             surtlingCapeConf.StyleTex = surtlingTex;
 
@@ -1051,8 +1093,8 @@ namespace DragoonCapes
             brawlerCapeConf.AddRequirement(new RequirementConfig("Ooze", 12, 4));
 
             //Sprite and Texture loading
-            Sprite brawlerIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/brawlerIcon.png");
-            Texture2D brawlerTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/brawlerTexture.png");
+            Sprite brawlerIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("brawlerIcon.png"));
+            Texture2D brawlerTex = AssetUtils.LoadTexture(GetAssetPath("brawlerTexture.png"));
             brawlerCapeConf.Icons = new Sprite[] { brawlerIcon };
             brawlerCapeConf.StyleTex = brawlerTex;
 
@@ -1081,8 +1123,8 @@ namespace DragoonCapes
             leechCapeConf.AddRequirement(new RequirementConfig("Root", 8, 4));
 
             //Sprite and Texture loading
-            Sprite leechIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/leechIcon.png");
-            Texture2D leechTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/leechTexture.png");
+            Sprite leechIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("leechIcon.png"));
+            Texture2D leechTex = AssetUtils.LoadTexture(GetAssetPath("leechTexture.png"));
             leechCapeConf.Icons = new Sprite[] { leechIcon };
             leechCapeConf.StyleTex = leechTex;
 
@@ -1118,8 +1160,8 @@ namespace DragoonCapes
             stalkerCapeConf.AddRequirement(new RequirementConfig("Obsidian", 8, 4));
 
             //Sprite and Texture loading
-            Sprite stalkerIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/stalkerIcon.png");
-            Texture2D stalkerTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/stalkerTexture.png");
+            Sprite stalkerIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("stalkerIcon.png"));
+            Texture2D stalkerTex = AssetUtils.LoadTexture(GetAssetPath("stalkerTexture.png"));
             stalkerCapeConf.Icons = new Sprite[] { stalkerIcon };
             stalkerCapeConf.StyleTex = stalkerTex;
 
@@ -1166,8 +1208,8 @@ namespace DragoonCapes
             adventurerCapeConf.AddRequirement(new RequirementConfig("Guck", 5, 3));
 
             //Sprite and Texture loading
-            Sprite adventurerIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/adventurerIcon.png");
-            Texture2D adventurerTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/adventurerTexture.png");
+            Sprite adventurerIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("adventurerIcon.png"));
+            Texture2D adventurerTex = AssetUtils.LoadTexture(GetAssetPath("adventurerTexture.png"));
             adventurerCapeConf.Icons = new Sprite[] { adventurerIcon };
             adventurerCapeConf.StyleTex = adventurerTex;
 
@@ -1202,8 +1244,8 @@ namespace DragoonCapes
             rabbitCapeConf.AddRequirement(new RequirementConfig("TrophyHare", 3, 1));
 
             //Sprite and Texture loading
-            Sprite rabbitIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/rabbitIcon.png");
-            Texture2D rabbitTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/rabbitTexture.png");
+            Sprite rabbitIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("rabbitIcon.png"));
+            Texture2D rabbitTex = AssetUtils.LoadTexture(GetAssetPath("rabbitTexture.png"));
             rabbitCapeConf.Icons = new Sprite[] { rabbitIcon };
             rabbitCapeConf.StyleTex = rabbitTex;
 
@@ -1234,8 +1276,8 @@ namespace DragoonCapes
             rustedCapeConf.AddRequirement(new RequirementConfig("Guck", 15, 5));
 
             //Sprite and Texture loading
-            Sprite rustedIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/rustedIcon.png");
-            Texture2D rustedTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/rustedTexture.png");
+            Sprite rustedIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("rustedIcon.png"));
+            Texture2D rustedTex = AssetUtils.LoadTexture(GetAssetPath("rustedTexture.png"));
             rustedCapeConf.Icons = new Sprite[] { rustedIcon };
             rustedCapeConf.StyleTex = rustedTex;
 
@@ -1266,8 +1308,8 @@ namespace DragoonCapes
             featherBeltConf.AddRequirement(new RequirementConfig("CapeFeather", 1));
 
             //Sprite and Texture loading
-            Sprite featherIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/featherBeltIcon.png");
-            Texture2D featherTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/featherBeltTexture.png");
+            Sprite featherIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("featherBeltIcon.png"));
+            Texture2D featherTex = AssetUtils.LoadTexture(GetAssetPath("featherBeltTexture.png"));
             featherBeltConf.Icons = new Sprite[] { featherIcon };
             featherBeltConf.StyleTex = featherTex;
 
@@ -1300,8 +1342,8 @@ namespace DragoonCapes
             DragonStaffConf.AddRequirement(new RequirementConfig("SurtlingCore", 5, 2));
 
             //Sprite and Texture loading
-            //Sprite DragonIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/neckIcon.png");
-            //Texture2D DragonTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/neckTexture.png");
+            //Sprite DragonIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("neckIcon.png"));
+            //Texture2D DragonTex = AssetUtils.LoadTexture(GetAssetPath("neckTexture.png"));
             //DragonStaffConf.Icons = new Sprite[] { NeckIcon };
             //DragonStaffConf.StyleTex = DragonTex;
 
@@ -1327,8 +1369,8 @@ namespace DragoonCapes
             meadBeltConf.AddRequirement(new RequirementConfig("DeerHide", 20));
 
             //Sprite and Texture loading
-            //Sprite meadIcon = AssetUtils.LoadSpriteFromFile("HappyDragoon-DragoonCapes/Assets/meadBeltIcon.png");
-            //Texture2D meadTex = AssetUtils.LoadTexture("HappyDragoon-DragoonCapes/Assets/meadBeltTexture.png");
+            //Sprite meadIcon = AssetUtils.LoadSpriteFromFile(GetAssetPath("meadBeltIcon.png"));
+            //Texture2D meadTex = AssetUtils.LoadTexture(GetAssetPath("meadBeltTexture.png"));
             //meadBeltConf.Icons = new Sprite[] { meadIcon };
             //meadBeltConf.StyleTex = meadTex;
 
