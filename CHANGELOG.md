@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.8
+
+- Fixed Shaman Cape spellcasting when Eitr is insufficient, using available Eitr first and health for the remainder.
+- Made custom cape and Feather Belt status effects available to Wacky Database for editing supported effects.
+
 ## 1.3.6
 
 - Restored compatibility with current Valheim 1.0 releases.

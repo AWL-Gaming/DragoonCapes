@@ -1,41 +1,66 @@
 ﻿using HarmonyLib;
-using MonoMod;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using TMPro;
+using System.Runtime.CompilerServices;
 using UnityEngine;
-using Logger = Jotunn.Logger;
 
 namespace DragoonCapes
 {
     internal class ShamanCape
     {
-        [HarmonyPatch]
-        private class ShamanPatch
+        // Attack is cloned for each cast. Keep the health shortfall on that cast
+        // rather than modifying the shared weapon or its resource costs.
+        private sealed class EitrShortfall
         {
+            public EitrShortfall() { }
+            public float HealthCost;
+        }
 
-            //ShamanCape Patch
-            //Make Eitr attacks use the Eitr cost in health 
-            //needs to lose the black feather effect somehow, and not reset combo when using health.
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(Attack), "Start")]
-            public static void Attack_ChangeCosts_Prefix(ref Attack __instance, ref ItemDrop.ItemData weapon)
+        private static readonly ConditionalWeakTable<Attack, EitrShortfall> Shortfalls =
+            new ConditionalWeakTable<Attack, EitrShortfall>();
+
+        [HarmonyPatch]
+        private static class ShamanPatch
+        {
+            // This getter feeds the initial Eitr check and the actual Eitr spend.
+            // Recalculate per call so burst attacks can convert each burst too.
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(Attack), nameof(Attack.GetAttackEitr),
+                new Type[] { typeof(Character), typeof(ItemDrop.ItemData) })]
+            private static void GetAttackEitr_Postfix(Attack __instance, Character character,
+                ItemDrop.ItemData weapon, ref float __result)
             {
-                Player player = Player.m_localPlayer;
-                if (player == null || player.IsDead() || !player.GetSEMan().HaveStatusEffectCategory("ShamanCape"))
+                Player player = character as Player;
+                if (player == null || player.IsDead() || weapon == null ||
+                    __instance.GetWeapon() != weapon ||
+                    !player.GetSEMan().HaveStatusEffectCategory("ShamanCape") || __result <= 0f)
                 {
+                    Shortfalls.Remove(__instance);
                     return;
                 }
-                if (weapon.m_shared.m_attack.m_attackEitr > player.GetEitr())
+
+                // TryUseEitr requires an extra 0.1 Eitr for positive costs.
+                // Reserve a small margin so a zero-Eitr player can still cast.
+                float eitrToUse = Mathf.Min(__result, Mathf.Max(0f, player.GetEitr() - 0.11f));
+                float healthCost = __result - eitrToUse;
+                if (healthCost <= 0f)
                 {
-                    float curEitr = player.GetEitr();
-                    float healthCost = weapon.m_shared.m_attack.m_attackEitr - curEitr;//health cost is the eitr cost - the eitr it will tak
-                    __instance.m_attackHealth = healthCost;
-                    __instance.m_attackEitr = curEitr-0.1f;//hopefully not emptying Eitr will allow it to cast.
+                    Shortfalls.Remove(__instance);
+                    return;
+                }
+
+                Shortfalls.GetOrCreateValue(__instance).HealthCost = healthCost;
+                __result = eitrToUse;
+            }
+
+            // Valheim consumes health after Eitr and uses this getter for both
+            // the initial check and actual charge. Preserve existing health costs.
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(Attack), "GetAttackHealth")]
+            private static void GetAttackHealth_Postfix(Attack __instance, ref float __result)
+            {
+                if (Shortfalls.TryGetValue(__instance, out EitrShortfall shortfall))
+                {
+                    __result += shortfall.HealthCost;
                 }
             }
         }
