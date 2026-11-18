@@ -9,13 +9,26 @@
 >
 > If this compatibility maintenance is useful to you and you want to support continued fixes, testing, and maintenance by AWL Gaming, support is optional at https://patreon.awlgaming.net. The mod remains available regardless of support.
 
-## AWL compatibility release 1.3.6
+## Wacky Database compatibility
 
-- Updated for current Valheim 1.0 releases.
-- Updated the Jotunn dependency to 2.30.0.
-- Updated the `SEMan.AddStatusEffect` Harmony target for the current Valheim method signature.
-- Updated Wraith Cape movement for the current Rigidbody API.
-- Preserves the original cape content, effects, recipes, assets, and configuration behavior.
+Wacky Database is optional. DragoonCapes exposes its existing custom cape and feather-belt status effects through Valheim's `ObjectDB`, so Wacky Database can discover, export, and modify their supported `SE_Stats` fields. Existing BepInEx config keys, recipes, icons, and cape balancing remain in place.
+
+Use Wacky Database's `wackydb_se $status_rabbitcape` command to export one status effect or `wackydb_all_se` to export them in bulk. Place edited effects in `BepInEx/config/wackysDatabase/Effects/` using filenames starting with `SE_`, such as `SE_$status_rabbitcape.yml`:
+
+```yaml
+Name: $status_rabbitcape
+Status_m_name: $status_rabbitcape
+SeData:
+  m_speedModifier: 0.37
+```
+
+Wacky Database can change native status-effect fields such as movement speed, skill bonuses, regeneration, healing, and carry weight. Ordinary item fields (including armor) can be adjusted through its item editor. Special cape abilities implemented in Harmony code, such as conditional damage, lifesteal, projectile behavior, or flight, are **not** converted into Wacky Database fields; their original BepInEx settings still control those abilities.
+
+Keep each status effect's `Name` and `Category` unchanged. Several cape abilities rely on the existing status-effect category. With Wacky Database absent, DragoonCapes continues to use the original BepInEx settings and status-effect appearance.
+
+## Shaman Cape spellcasting
+
+With the Shaman Cape equipped, magical attacks spend available Eitr first and use health for any Eitr shortfall, including when you have no Eitr capacity. Unequipping the cape restores normal Eitr requirements.
 
 <img src="https://github.com/Happydragun4now/DragoonCapes/blob/main/17Capes.jpg?raw=true"/>
 

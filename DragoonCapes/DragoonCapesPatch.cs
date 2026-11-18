@@ -32,6 +32,15 @@ internal static class PatchObjectDB
     private static SE_Stats DeerCapeStatus = ScriptableObject.CreateInstance<SE_Stats>();
     private static SE_Stats LinenCapeStatus = ScriptableObject.CreateInstance<SE_Stats>();
 
+    private static void UseCapeItemIcon(SE_Stats effect, ItemDrop item)
+    {
+        Sprite[] icons = item?.m_itemData?.m_shared?.m_icons;
+        if (effect.m_icon == null && BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("WackyMole.WackysDatabase") && icons != null && icons.Length > 0 && icons[0] != null)
+        {
+            effect.m_icon = icons[0];
+        }
+    }
+
     //I think these names are okay because the code side variable names don't get translated?
     private static readonly string[] trollSet = new string[3] { "HelmetTrollLeather", "ArmorTrollLeatherChest", "ArmorTrollLeatherLegs" };
     //private static readonly string[] trollSet = new string[3] { "$item_helmet_trollleather", "$item_chest_trollleather", "$item_legs_trollleather" };
@@ -103,10 +112,12 @@ internal static class PatchObjectDB
         {
             if (item.name == "CapeDeerHide")
             {
+                UseCapeItemIcon(DeerCapeStatus, item.GetComponent<ItemDrop>());
                 item.GetComponent<ItemDrop>().m_itemData.m_shared.m_equipStatusEffect = DeerCapeStatus;
             }
             else if (item.name == "CapeWolf")
             {
+                UseCapeItemIcon(WolfCapeStatus, item.GetComponent<ItemDrop>());
                 //set armor and armor per level values on the item according to the config values
                 //item.GetComponent<ItemDrop>().m_itemData.m_shared.m_armor = DragoonCapes.DragoonCapes.Instance.WolfArmor.Value;
                 //item.GetComponent<ItemDrop>().m_itemData.m_shared.m_armorPerLevel = DragoonCapes.DragoonCapes.Instance.WolfArmorPerLevel.Value;
@@ -115,14 +126,17 @@ internal static class PatchObjectDB
             }
             else if (item.name == "CapeLox")
             {
+                UseCapeItemIcon(LoxCapeStatus, item.GetComponent<ItemDrop>());
                 item.GetComponent<ItemDrop>().m_itemData.m_shared.m_equipStatusEffect = LoxCapeStatus;
             }
             else if (item.name == "CapeLinen")
             {
+                UseCapeItemIcon(LinenCapeStatus, item.GetComponent<ItemDrop>());
                 item.GetComponent<ItemDrop>().m_itemData.m_shared.m_equipStatusEffect = LinenCapeStatus;
             }
             else if (item.name == "CapeTrollHide")
             {
+                UseCapeItemIcon(TrollCapeStatus, item.GetComponent<ItemDrop>());
                 item.GetComponent<ItemDrop>().m_itemData.m_shared.m_equipStatusEffect = TrollCapeStatus;
                 //thanks to GoldenRevolver for this part that makes the troll set 3 pieces
                 item.GetComponent<ItemDrop>().m_itemData.m_shared.m_setName = string.Empty;

@@ -28,7 +28,7 @@ namespace DragoonCapes
     {
         public const string PluginGUID = "com.HappyDragoon.DragoonCapes";
         public const string PluginName = "DragoonCapes";
-        public const string PluginVersion = "1.3.7";
+        public const string PluginVersion = "1.3.8";
 
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
 
@@ -1325,10 +1325,63 @@ namespace DragoonCapes
                 ItemManager.Instance.AddItem(featherBelt);
             }
 
+            // Register the same effect instances used by the capes in ObjectDB via Jotunn.
+            // This lets status editors modify supported SE_Stats fields without requiring them.
+            RegisterCapeStatusEffects();
+
             //Cleanup
             PrefabManager.OnVanillaPrefabsAvailable -= AddClonedItems;
 
         }
+
+        private void RegisterCapeStatusEffects()
+        {
+            if (!dragoonCapeEffectsEnabled.Value)
+            {
+                return;
+            }
+
+            RegisterCapeStatusEffect("CapeNeck", neckCapeStatus);
+            RegisterCapeStatusEffect("CapeCultist", cultistCapeStatus);
+            RegisterCapeStatusEffect("CapeDvergr", dvergrCapeStatus);
+            RegisterCapeStatusEffect("CapeShaman", shamanCapeStatus);
+            RegisterCapeStatusEffect("CapeSerpent", serpentCapeStatus);
+            RegisterCapeStatusEffect("CapeKnight", knightCapeStatus);
+            RegisterCapeStatusEffect("CapeCrusader", crusaderCapeStatus);
+            RegisterCapeStatusEffect("CapeBerserker", berserkCapeStatus);
+            RegisterCapeStatusEffect("CapeBush", bushCapeStatus);
+            RegisterCapeStatusEffect("CapeBoar", boarCapeStatus);
+            RegisterCapeStatusEffect("CapeGreydwarf", dwarfCapeStatus);
+            RegisterCapeStatusEffect("CapeWraith", wraithCapeStatus);
+            RegisterCapeStatusEffect("CapeEinherjar", einherjarCapeStatus);
+            RegisterCapeStatusEffect("CapeSurtling", surtlingCapeStatus);
+            RegisterCapeStatusEffect("CapeBrawler", brawlerCapeStatus);
+            RegisterCapeStatusEffect("CapeLeech", leechCapeStatus);
+            RegisterCapeStatusEffect("CapeStalker", stalkerCapeStatus);
+            RegisterCapeStatusEffect("CapeAdventurer", adventurerCapeStatus);
+            RegisterCapeStatusEffect("CapeRabbit", rabbitCapeStatus);
+            RegisterCapeStatusEffect("CapeRusted", rustedCapeStatus);
+
+            if (featherBeltEnabled.Value)
+            {
+                RegisterCapeStatusEffect("BeltFeather", featherBeltStatus);
+            }
+        }
+
+        private static void RegisterCapeStatusEffect(string itemName, SE_Stats effect)
+        {
+            // Wacky Database's status exporter needs a non-null icon.
+            // Reuse the matching item icon; do not add a new asset or status effect.
+            GameObject prefab = PrefabManager.Instance.GetPrefab(itemName);
+            Sprite[] icons = prefab?.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_icons;
+            if (effect.m_icon == null && BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("WackyMole.WackysDatabase") && icons != null && icons.Length > 0 && icons[0] != null)
+            {
+                effect.m_icon = icons[0];
+            }
+
+            ItemManager.Instance.AddStatusEffect(new CustomStatusEffect(effect, false));
+        }
+
         private void AddArchivedClonedItems()
         {
             //Dragon Breath Staff-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
